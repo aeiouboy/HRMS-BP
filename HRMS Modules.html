@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<title>HRMS · 4 Modules × 5 Personas (Time = Darwinbox style)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="ext-resource-dependency" content="humi-logo-final-2.png" data-resource-id="humiLogo"/>
+<link rel="stylesheet" href="prod-tokens.css"/>
+<link rel="stylesheet" href="styles.css"/>
+<style>
+  body { margin: 0; background: #1a1f29; font-family: 'CPN', 'IBM Plex Sans Thai', system-ui, sans-serif; }
+</style>
+<template id="__bundler_thumbnail" data-bg-color="#0E1B2C">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0E1B2C"/>
+    <g transform="translate(360,260)">
+      <!-- Stylized 'H' -->
+      <rect x="0"   y="0" width="60"  height="280" fill="#FCFAF5"/>
+      <rect x="220" y="0" width="60"  height="280" fill="#FCFAF5"/>
+      <rect x="0"   y="110" width="280" height="60" fill="#FCFAF5"/>
+      <!-- Accent dot (Humi mark) -->
+      <circle cx="360" cy="90" r="30" fill="#1FA8A0"/>
+      <circle cx="360" cy="40" r="14" fill="#1FA8A0"/>
+    </g>
+    <text x="600" y="640" font-family="sans-serif" font-size="28" font-weight="700" fill="#E7E3D8" text-anchor="middle" letter-spacing="6">HRMS</text>
+    <text x="600" y="680" font-family="sans-serif" font-size="14" fill="#8A97A8" text-anchor="middle" letter-spacing="4">CENTRAL · HUMI</text>
+  </svg>
+</template>
+<!-- Resource shim — fallback for unbundled use (relative paths); the bundler replaces window.__resources at runtime -->
+<script>
+  window.__resources = window.__resources || {};
+  if (!window.__resources.humiLogo) window.__resources.humiLogo = "humi-logo-final-2.png";
+</script>
+<!-- Money masking runtime (default: ALL currency values blurred until user toggles) -->
+<script src="money-mask.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="prod-icons.jsx"></script>
+<script type="text/babel" src="pattern-d-shell.jsx"></script>
+<script type="text/babel" src="mod-pd-home-emp.jsx"></script>
+<script type="text/babel" src="mod-sidebar-full.jsx"></script>
+<script type="text/babel" src="mod-pattern-d.jsx"></script>
+<script type="text/babel" src="mod-pattern-d-benefit.jsx"></script>
+<script type="text/babel" src="mod-pattern-d-benefit-mgr.jsx"></script>
+<script type="text/babel" src="mod-notifications.jsx"></script>
+<script type="text/babel" src="mod-extras.jsx"></script>
+<script type="text/babel" src="mod-employee.jsx"></script>
+<script type="text/babel" src="mod-benefit-1.jsx"></script>
+<script type="text/babel" src="mod-benefit-2.jsx"></script>
+<script type="text/babel" src="mod-benefit-3.jsx"></script>
+<script type="text/babel" src="mod-benefit-admin.jsx"></script>
+<script type="text/babel" src="mod-time-1.jsx"></script>
+<script type="text/babel" src="mod-time-2.jsx"></script>
+<script type="text/babel" src="mod-time-3.jsx"></script>
+<script type="text/babel" src="db-shared.jsx"></script>
+<script type="text/babel" src="db-time-1.jsx"></script>
+<script type="text/babel" src="db-time-2.jsx"></script>
+<script type="text/babel" src="db-leave-apply.jsx"></script>
+<script type="text/babel" src="mod-payroll-1.jsx"></script>
+<script type="text/babel" src="mod-payroll-2.jsx"></script>
+<script type="text/babel" src="mod-payroll-3.jsx"></script>
+<script type="text/babel" src="mod-orgchart.jsx"></script>
+<!-- Production designs (from aeiouboy/hr@master git) -->
+<script type="text/babel" src="prod-shell.jsx"></script>
+<script type="text/babel" src="prod-home.jsx"></script>
+<script type="text/babel" src="prod-hire.jsx"></script>
+<script type="text/babel" src="prod-hire-clusters.jsx"></script>
+<script type="text/babel" src="prod-probation.jsx"></script>
+<script type="text/babel" src="prod-employee-detail.jsx"></script>
+<script type="text/babel" src="mod-offboard.jsx"></script>
+<script type="text/babel" src="mod-lifecycle-2.jsx"></script>
+<script type="text/babel" src="mod-workforce.jsx"></script>
+<script type="text/babel" src="mod-roster-v2.jsx"></script>
+<!-- Legacy screens (v1 design system) — assembled into canvas for coverage -->
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="shell.jsx"></script>
+<script type="text/babel" src="screens/admin_data.jsx"></script>
+<script type="text/babel" src="screens/requests.jsx"></script>
+<script type="text/babel" src="screens/announcements.jsx"></script>
+<script type="text/babel" src="screens/admin_permissions.jsx"></script>
+<script type="text/babel" src="screens/admin_inbox.jsx"></script>
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard, TweaksPanel, TweakSection, TweakColor, TweakRadio, TweakToggle, useTweaks } = window;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "teal",
+  "density": "regular",
+  "dark": false
+}/*EDITMODE-END*/;
+
+const ACCENT_PALETTES = {
+  teal:   { accent: "#1FA8A0", soft: "#D6EEEC" },
+  indigo: { accent: "#5B6CE0", soft: "#E1E4FB" },
+  forest: { accent: "#2F8A6B", soft: "#D1FAE5" },
+  plum:   { accent: "#9333EA", soft: "#F3E8FF" },
+};
+
+function applyTweaks(t) {
+  const root = document.documentElement;
+  const p = ACCENT_PALETTES[t.accent] || ACCENT_PALETTES.teal;
+  root.style.setProperty("--color-accent", p.accent);
+  root.style.setProperty("--color-accent-soft", p.soft);
+  root.style.setProperty("--color-brand", p.accent);
+  root.style.setProperty("--color-brand-tint", p.soft);
+  const scale = t.density === "compact" ? 0.92 : t.density === "comfy" ? 1.08 : 1;
+  root.style.setProperty("--density-scale", scale);
+}
+
+const Wrap = ({ persona, nav, badge, children }) => (
+  <window.PersonaShell persona={persona} activeNav={nav} pageBadge={badge}>{children}</window.PersonaShell>
+);
+
+// Legacy v1 shell wrapper — renders a screen with the older Sidebar + Topbar
+// (uses classes from styles.css, not Humi tokens). Adds a small persona tag
+// on top so users still know which role this view represents.
+const LegacyWrap = ({ persona, title, subtitle, current, children }) => {
+  const P = window.PERSONAS[persona] || window.PERSONAS.employee;
+  const T = window.PERSONA_THEME[persona] || window.PERSONA_THEME.employee;
+  return (
+    <div className="app">
+      <window.Sidebar current={current} onNav={() => {}}/>
+      <main className="main" style={{padding: "0 32px 40px"}}>
+        {/* Banner: legacy design notice + persona indicator */}
+        <div style={{
+          margin:"0 -32px 16px", padding:"8px 32px",
+          background: T.soft,
+          borderBottom: `1px solid ${T.accent}33`,
+          display:"flex", alignItems:"center", gap: 12,
+          fontSize: 12, fontWeight: 600, color:"var(--ink-2)",
+          letterSpacing: ".02em",
+        }}>
+          <span style={{
+            padding:"3px 10px", borderRadius: 999,
+            background: T.accent, color:"#fff",
+            fontSize: 10, fontWeight: 700, letterSpacing:".1em", textTransform:"uppercase",
+          }}>{T.shortLabel}</span>
+          <span style={{color:"var(--ink-2)"}}>{P.name} · {P.role}</span>
+          <span style={{marginLeft:"auto", padding:"3px 10px", borderRadius: 4, background:"rgba(0,0,0,0.04)", color:"var(--ink-3)", fontSize: 11, fontWeight: 500, letterSpacing: 0}}>
+            v1 design · pending migration to Humi v2 shell
+          </span>
+        </div>
+        {title && <window.Topbar title={title} subtitle={subtitle} onNav={() => {}}/>}
+        {children}
+      </main>
+    </div>
+  );
+};
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => { applyTweaks(t); }, [t]);
+  window.__TWEAKS = t;
+
+  return (
+    <>
+      <DesignCanvas storageKey="hrms-modules-canvas">
+
+        {/* ════════════════════════════════════════════════════════════════
+            🗺️  SIDEBAR STRUCTURE — full module tree per persona
+            ════════════════════════════════════════════════════════════════ */}
+        <DCSection id="sidebar-structure" title="🗺️ Pattern D · sidebar สั้น + tabs ใน module + ⌘K">
+          <DCArtboard id="pd-home-emp" label="หน้าหลัก · Employee" width={1440} height={1300}>
+            <window.PDHomeEmp/>
+          </DCArtboard>
+          <DCArtboard id="pattern-d-time" label="ลงเวลา · ตารางกะ → Manager (จัดกะทีม)" width={1440} height={1000}>
+            <window.PatternD_Time/>
+          </DCArtboard>
+          <DCArtboard id="pattern-d-benefit" label="Pattern D · สวัสดิการ → Employee (เบิกใหม่ + วงเงิน + ประวัติ)" width={1440} height={1100}>
+            <window.PatternD_Benefit/>
+          </DCArtboard>
+          <DCArtboard id="pattern-d-benefit-mgr" label="Pattern D · สวัสดิการ → Manager (รออนุมัติ + วงเงินของทีม)" width={1440} height={1100}>
+            <window.PatternD_BenefitMgr/>
+          </DCArtboard>
+          <DCArtboard id="sidebar-full" label="Sidebar IA · 5 personas × ทุก module + sub-pages" width={1800} height={4400}>
+            <window.SidebarFullPoster/>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ════════════════════════════════════════════════════════════════
+            🏠  HOME & PROFILE — landing screens & employee identity
+            ════════════════════════════════════════════════════════════════ */}
+        <DCSection id="home" title="🏠 Home & Profile · landing + ทะเบียนพนักงาน + ผังองค์กร">
+          <DCArtboard id="prod-home" label="P-1 · Employee — /th/home (Humi dashboard landing)" width={1280} height={1700}>
+            <window.ProdShell page="home" persona="employee"><window.ProdHome/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-home-inbox" label="P-1a · Home + Inbox dropdown เปิด (กล่องงาน 3 รายการ)" width={1280} height={1700}>
+            <window.ProdShell page="home" persona="employee" defaultPanel="inbox"><window.ProdHome/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-home-bell" label="P-1b · Home + Bell dropdown เปิด (แจ้งเตือน 2 ใหม่)" width={1280} height={1700}>
+            <window.ProdShell page="home" persona="employee" defaultPanel="bell"><window.ProdHome/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-emp-detail" label="P-5 · HR Admin — Employee Detail Hub (/admin/employees/[id]) · 9 actions" width={1280} height={2400}>
+            <window.ProdShell page="admin" persona="admin"><window.EmployeeDetail/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="m1-emp"     label="1A · Employee — โปรไฟล์ของฉัน"            width={1280} height={1280}><Wrap persona="employee" nav="employee-center"><window.EC_Employee/></Wrap></DCArtboard>
+          <DCArtboard id="m1-emp-org" label="1A+ · Employee — โปรไฟล์ → tab ผังองค์กร"  width={1280} height={1500}><Wrap persona="employee" nav="employee-center"><window.EC_Employee initialTab="org"/></Wrap></DCArtboard>
+          <DCArtboard id="m1-mgr"     label="1B · Manager — ทีมของฉัน"                 width={1280} height={1000}><Wrap persona="manager"  nav="employee-center"><window.EC_Manager/></Wrap></DCArtboard>
+          <DCArtboard id="m1-admin"   label="1C · HR Admin — ทะเบียนพนักงาน (list)"     width={1280} height={1100}><Wrap persona="admin"    nav="employee-center"><window.EC_Admin/></Wrap></DCArtboard>
+          <DCArtboard id="m1-hris"    label="1D · HRIS — Master data"                  width={1280} height={1280}><Wrap persona="hris"     nav="employee-center"><window.EC_Hris/></Wrap></DCArtboard>
+          <DCArtboard id="m1-spd"     label="1E · SPD — คิวตรวจเอกสาร"                 width={1280} height={1180}><Wrap persona="spd"      nav="employee-center"><window.EC_Spd/></Wrap></DCArtboard>
+          <DCArtboard id="org-emp"   label="OC-A · Employee — ผังองค์กร"               width={1360} height={1500}><Wrap persona="employee" nav="org"><window.OrgChart_Standalone persona="employee"/></Wrap></DCArtboard>
+          <DCArtboard id="org-mgr"   label="OC-B · Manager — focus หัวหน้ากะ + ลูกทีม" width={1360} height={1500}><Wrap persona="manager"  nav="org"><window.OrgChart_Standalone persona="manager"/></Wrap></DCArtboard>
+          <DCArtboard id="org-admin" label="OC-C · HR Admin — focus Store Manager"     width={1360} height={1500}><Wrap persona="admin"    nav="org"><window.OrgChart_Standalone persona="admin"/></Wrap></DCArtboard>
+          <DCArtboard id="org-hris"  label="OC-D · HRIS — focus CHRO ภาพรวมทั้งบริษัท" width={1360} height={1500}><Wrap persona="hris"     nav="org"><window.OrgChart_Standalone persona="hris"/></Wrap></DCArtboard>
+        </DCSection>
+
+        {/* ════════════════════════════════════════════════════════════════
+            🔄  EMPLOYEE LIFECYCLE — Hire → Probation → Transfer → Resignation
+            ════════════════════════════════════════════════════════════════ */}
+        <DCSection id="lifecycle" title="🔄 Employee Lifecycle · Hire → Onboard → Probation → Transfer → Resignation">
+          {/* — Hire Wizard (port from git) — */}
+          <DCArtboard id="prod-hire-who" label="P-2a · HR Admin — Hire · Cluster 1: Who (ข้อมูลบุคคล)" width={1280} height={3400}>
+            <window.ProdShell page="hire" persona="admin"><window.ProdHire startStep={1}/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-hire-job" label="P-2b · HR Admin — Hire · Cluster 2: Job (ข้อมูลงาน)" width={1280} height={1800}>
+            <window.ProdShell page="hire" persona="admin"><window.ProdHire startStep={2}/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-hire-review" label="P-2c · HR Admin — Hire · Cluster 3: Review" width={1280} height={2400}>
+            <window.ProdShell page="hire" persona="admin"><window.ProdHire startStep={3}/></window.ProdShell>
+          </DCArtboard>
+          {/* — Onboarding — */}
+          <DCArtboard id="lc-onboard-emp" label="LC-7 · Employee — Onboarding (Day 1 → 90)" width={1360} height={1900}>
+            <Wrap persona="employee" nav="home"><window.Onboarding_Day1/></Wrap>
+          </DCArtboard>
+          {/* — Probation — */}
+          <DCArtboard id="prod-prob-inbox" label="P-3 · Manager — Probation Inbox (รายการรออนุมัติ)" width={1280} height={900}>
+            <window.ProdShell page="team" persona="manager"><window.ProbationInbox/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="prod-prob-approve" label="P-4 · Manager — Probation Approve (รีวิวเคสเดี่ยว)" width={1280} height={2100}>
+            <window.ProdShell page="team" persona="manager"><window.ProbationApprove/></window.ProdShell>
+          </DCArtboard>
+          <DCArtboard id="lc-confirm-admin" label="LC-8 · HR Admin — Confirmation Letter (after probation)" width={1360} height={1700}>
+            <Wrap persona="admin" nav="employee-center"><window.Confirmation_Admin/></Wrap>
+          </DCArtboard>
+          {/* — Transfer — */}
+          <DCArtboard id="lc-transfer-mgr" label="LC-5 · Manager — Approve Internal Transfer" width={1360} height={1700}>
+            <Wrap persona="manager" nav="inbox" badge="1 ใหม่"><window.Transfer_Manager/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="lc-transfer-admin" label="LC-6 · HR Admin — Transfer Workspace (checklist + letter)" width={1360} height={1700}>
+            <Wrap persona="admin" nav="employee-center"><window.Transfer_Admin/></Wrap>
+          </DCArtboard>
+          {/* — Resignation — */}
+          <DCArtboard id="lc-offboard-mgr" label="LC-2 · Manager — อนุมัติการลาออก (Approve Resignation)" width={1360} height={1500}>
+            <Wrap persona="manager" nav="inbox" badge="1 ใหม่"><window.Offboard_Manager/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="lc-offboard-admin" label="LC-3 · HR Admin — Offboarding Workspace (clearance + final pay)" width={1360} height={1800}>
+            <Wrap persona="admin" nav="employee-center"><window.Offboard_AdminWorkspace/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="lc-offboard-emp" label="LC-4 · Employee — Exit Interview Form" width={1360} height={2300}>
+            <Wrap persona="employee" nav="requests"><window.Offboard_ExitInterview/></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ════════════════════════════════════════════════════════════════
+            📅  DAILY OPERATIONS — Time · Benefit · Payroll · Workforce
+            ════════════════════════════════════════════════════════════════ */}
+        <DCSection id="ops-time" title="📅 Time & Attendance · 5 personas (Darwinbox style)">
+          <DCArtboard id="m3db-palette" label="3· Status Palette · ปรับชุดสีให้เข้ากับ Humi (warm cream)" width={1360} height={780}>
+            <div style={{padding: 32, background:"var(--color-canvas, #F6F1E8)", minHeight:"100%"}}>
+              <window.DbStatusPalette/>
+            </div>
+          </DCArtboard>
+          <DCArtboard id="m3db-emp"   label="3A · Employee — My Attendance"             width={1360} height={1500}>
+            <Wrap persona="employee" nav="time"><window.TM_Employee_DB/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="m3db-emp-leave" label="3A-1 · Employee — Apply Leave (form)" width={1360} height={2000}>
+            <Wrap persona="employee" nav="time"><window.TM_Employee_ApplyLeave/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="m3db-mgr"   label="3B · Manager — Team Attendance + Workdesk" width={1360} height={1600}>
+            <Wrap persona="manager"  nav="time" badge="5 actions"><window.TM_Manager_DB/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="m3db-admin" label="3C · HR Admin — Org Dashboard (live)"      width={1360} height={1280}>
+            <Wrap persona="admin"    nav="time"><window.TM_Admin_DB/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="m3db-hris"  label="3D · HRIS — Attendance Policy Builder"     width={1360} height={1280}>
+            <Wrap persona="hris"     nav="time"><window.TM_Hris_DB/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="m3db-spd"   label="3E · SPD — Regularization Queue"           width={1360} height={1280}>
+            <Wrap persona="spd"      nav="time"><window.TM_Spd_DB/></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection id="ops-benefit" title="📅 Benefit Claimed · 5 personas">
+          <DCArtboard id="m2-emp"        label="2A · Employee — เบิกสวัสดิการ"               width={1280} height={1100}><Wrap persona="employee" nav="benefit"><window.BN_Employee/></Wrap></DCArtboard>
+          <DCArtboard id="m2-mgr"        label="2B · Manager — อนุมัติเบิก"                  width={1280} height={1100}><Wrap persona="manager"  nav="benefit"><window.BN_Manager/></Wrap></DCArtboard>
+          <DCArtboard id="m2-admin"      label="2C · HR Admin — ภาพรวม + คิวอนุมัติ"          width={1280} height={1080}><Wrap persona="admin"    nav="benefit"><window.BN_Admin/></Wrap></DCArtboard>
+          <DCArtboard id="m2-admin-plan" label="2C+ · HR Admin — แผนสวัสดิการ + จัดสิทธิ"    width={1360} height={1900}><Wrap persona="admin"    nav="benefit"><window.BN_Admin initialView="plans"/></Wrap></DCArtboard>
+          <DCArtboard id="m2-admin-rule" label="2C++ · HR Admin — เกณฑ์สิทธิ (Eligibility)"  width={1360} height={2000}><Wrap persona="admin"    nav="benefit"><window.BN_Admin initialView="rules"/></Wrap></DCArtboard>
+          <DCArtboard id="m2-hris"       label="2D · HRIS — Master catalog (วงเงิน/กฎหลัก)"  width={1280} height={1280}><Wrap persona="hris"     nav="benefit"><window.BN_Hris/></Wrap></DCArtboard>
+          <DCArtboard id="m2-spd"        label="2E · SPD — ตรวจเอกสาร"                       width={1280} height={1200}><Wrap persona="spd"      nav="benefit"><window.BN_Spd/></Wrap></DCArtboard>
+        </DCSection>
+
+        <DCSection id="ops-payroll" title="📅 Payroll · 5 personas">
+          <DCArtboard id="m4-emp"   label="4A · Employee — สลิปเงินเดือน"             width={1280} height={1280}><Wrap persona="employee" nav="payroll"><window.PR_Employee/></Wrap></DCArtboard>
+          <DCArtboard id="m4-mgr"   label="4B · Manager — Team Payroll"               width={1280} height={1100}><Wrap persona="manager"  nav="payroll"><window.PR_Manager/></Wrap></DCArtboard>
+          <DCArtboard id="m4-admin" label="4C · HR Admin — Run Payroll"               width={1280} height={1200}><Wrap persona="admin"    nav="payroll"><window.PR_Admin/></Wrap></DCArtboard>
+          <DCArtboard id="m4-hris"  label="4D · HRIS — Payroll config"                width={1280} height={1280}><Wrap persona="hris"     nav="payroll"><window.PR_Hris/></Wrap></DCArtboard>
+          <DCArtboard id="m4-spd"   label="4E · SPD — ตรวจสอบ payroll"                width={1280} height={1200}><Wrap persona="spd"      nav="payroll"><window.PR_Spd/></Wrap></DCArtboard>
+        </DCSection>
+
+        <DCSection id="ops-workforce" title="📅 Workforce · Retail operations (Roster · Swap · Asset)">
+          <DCArtboard id="wf-roster-time" label="WF-1A · Roster time-first — แสดงเป็นเวลา · กรอก override · ทีม/สาขาพร้อมกัน" width={1560} height={1500}>
+            <Wrap persona="manager" nav="time"><window.Roster_TimeFirst/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wf-roster-v2" label="WF-1B · Roster v2 — bulk select + pattern library + inline conflicts (one page, bulk-first)" width={1560} height={1700}>
+            <Wrap persona="manager" nav="time"><window.Roster_BulkSelect/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wf-roster-regional" label="WF-1C · Roster Regional — 3 stores · 20+ คน บนหน้าเดียว (RM view)" width={1480} height={1500}>
+            <Wrap persona="manager" nav="time"><window.Roster_Regional/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wf-roster" label="WF-1 · Manager — Weekly Roster Builder (กะการทำงาน) · v1" width={1480} height={1400}>
+            <Wrap persona="manager" nav="time"><window.Roster_Manager/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wf-swap" label="WF-2 · Manager — Shift Swap Approval (สลับกะ)" width={1360} height={1300}>
+            <Wrap persona="manager" nav="inbox" badge="2 รออนุมัติ"><window.ShiftSwap_Manager/></Wrap>
+          </DCArtboard>
+          <DCArtboard id="wf-asset" label="WF-3 · HR Admin — Asset Management (เครื่องแบบ + IT + Badge)" width={1480} height={1500}>
+            <Wrap persona="admin" nav="employee-center"><window.Asset_Admin/></Wrap>
+          </DCArtboard>
+        </DCSection>
+
+        {/* ════════════════════════════════════════════════════════════════
+            📦  ARCHIVE — earlier designs kept for comparison
+            ════════════════════════════════════════════════════════════════ */}
+        <DCSection id="archive" title="📦 Archive · เปรียบเทียบ + Legacy v1 (รอ migrate)">
+          {/* Time original — superseded by Darwinbox-style above */}
+          <DCArtboard id="m3-emp"   label="3A · Employee — ลงเวลา (original v1)"   width={1280} height={1200}><Wrap persona="employee" nav="time"><window.TM_Employee/></Wrap></DCArtboard>
+          <DCArtboard id="m3-mgr"   label="3B · Manager (original v1)"              width={1280} height={1280}><Wrap persona="manager"  nav="time" badge="5 รออนุมัติ"><window.TM_Manager/></Wrap></DCArtboard>
+          <DCArtboard id="m3-admin" label="3C · HR Admin (original v1)"             width={1280} height={1200}><Wrap persona="admin"    nav="time"><window.TM_Admin/></Wrap></DCArtboard>
+          <DCArtboard id="m3-hris"  label="3D · HRIS (original v1)"                 width={1280} height={1280}><Wrap persona="hris"     nav="time"><window.TM_Hris/></Wrap></DCArtboard>
+          <DCArtboard id="m3-spd"   label="3E · SPD (original v1)"                  width={1280} height={1150}><Wrap persona="spd"      nav="time"><window.TM_Spd/></Wrap></DCArtboard>
+          {/* Legacy v1 screens — pending migration to Humi v2 shell */}
+          <DCArtboard id="lg-requests" label="LG-1 · Employee — Request Center hub (v1)" width={1360} height={1400}>
+            <LegacyWrap persona="employee" current="requests"><window.RequestsScreen onNav={() => {}}/></LegacyWrap>
+          </DCArtboard>
+          <DCArtboard id="lg-announce" label="LG-2 · Employee — Announcements feed (v1)" width={1360} height={1300}>
+            <LegacyWrap persona="employee" current="announce"><window.AnnouncementsScreen onNav={() => {}}/></LegacyWrap>
+          </DCArtboard>
+          <DCArtboard id="lg-perm" label="LG-3 · HR Admin — Role Permissions (RBP editor, v1)" width={1360} height={1200}>
+            <LegacyWrap persona="admin" current="admin" title="สิทธิ์ตามบทบาท" subtitle="กำหนดสิ่งที่แต่ละบทบาทเห็นและทำได้">
+              <window.AdminPermissions Ic={window.I}/>
+            </LegacyWrap>
+          </DCArtboard>
+          <DCArtboard id="lg-inbox" label="LG-4 · HR Admin — Workflow Inbox (queue + approval chain, v1)" width={1360} height={1300}>
+            <LegacyWrap persona="admin" current="admin" title="กล่องงาน" subtitle="คำขออนุมัติทั้งหมด">
+              <window.AdminInbox Ic={window.I} workflows={window.AdminData.WORKFLOWS} focusedId={null} onClose={() => {}}/>
+            </LegacyWrap>
+          </DCArtboard>
+        </DCSection>
+
+      </DesignCanvas>
+
+      <TweaksPanel>
+        <TweakSection label="Brand · สี"/>
+        <TweakColor label="Accent" value={ACCENT_PALETTES[t.accent]?.accent || "#1FA8A0"}
+                    options={["#1FA8A0","#5B6CE0","#2F8A6B","#9333EA"]}
+                    onChange={hex => {
+                      const key = Object.keys(ACCENT_PALETTES).find(k => ACCENT_PALETTES[k].accent === hex) || "teal";
+                      setTweak("accent", key);
+                    }}/>
+        <TweakSection label="Layout"/>
+        <TweakRadio label="ความหนาแน่น" value={t.density}
+                    options={["compact","regular","comfy"]}
+                    onChange={v => setTweak("density", v)}/>
+      </TweaksPanel>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

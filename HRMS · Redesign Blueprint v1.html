@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>HRMS · Redesign Blueprint — Sidebar IA · Impersonation · Edit Mode</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="prod-tokens.css"/>
+<style>
+  :root {
+    --bp-ink: #0E1B2C;
+    --bp-ink-2: #243447;
+    --bp-ink-3: #5A6A7E;
+    --bp-ink-4: #8A97A8;
+    --bp-canvas: #F6F1E8;
+    --bp-paper: #FCFAF5;
+    --bp-line: #E7DFD1;
+    --bp-line-soft: #EFE9DC;
+    --bp-accent: #1FA8A0;
+    --bp-accent-soft: #D6EEEC;
+    --bp-warn: #C2410C;          /* deep amber for impersonation */
+    --bp-warn-bg: #FFF1E0;
+    --bp-warn-line: #F0B98C;
+    --bp-edit: #5B3FD9;          /* edit-mode indigo */
+    --bp-edit-bg: #ECE7FE;
+    --bp-edit-line: #C7BCFF;
+    --bp-success: #0E7A5F;
+    --bp-success-soft: #D6F0E7;
+    --bp-danger: #B42318;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  }
+  html, body { margin: 0; padding: 0; background: var(--color-canvas); color: var(--color-ink); font-family: var(--font-sans); }
+  body { letter-spacing: -0.005em; -webkit-font-smoothing: antialiased; font-feature-settings: 'ss01', 'cv11'; }
+
+  /* ─────────────────────────────────────────────  Page chrome */
+  .bp-page { max-width: 1340px; margin: 0 auto; padding: 56px 56px 120px; }
+
+  .bp-masthead {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px;
+    border-top: 1px solid var(--color-hairline);
+    padding-top: 22px; margin-bottom: 56px;
+  }
+  .bp-mast-left .doc-id { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--color-ink-muted); text-transform: uppercase; font-weight: 600; }
+  .bp-mast-left h1 {
+    font-family: var(--font-display);
+    font-size: 36px; line-height: 1.05; letter-spacing: -0.025em;
+    margin: 12px 0 14px; font-weight: 600; color: var(--color-ink);
+  }
+  .bp-mast-left h1 em { font-style: italic; color: var(--color-accent); font-family: var(--font-display); font-weight: 500; }
+  .bp-mast-left .deck-line { font-family: var(--font-sans); font-size: 14px; line-height: 1.6; color: var(--color-ink-muted); max-width: 56ch; }
+  .bp-mast-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 13px; align-content: end; }
+  .bp-mast-meta dt { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-ink-faint); font-weight: 600; padding-top: 3px; }
+  .bp-mast-meta dd { margin: 0; color: var(--color-ink-soft); font-weight: 500; }
+
+  /* Section header (aligned with humi-section-title scale) */
+  .bp-section { margin-top: 72px; }
+  .bp-section-hd {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+    border-bottom: 1px solid var(--color-hairline);
+    padding-bottom: 14px; margin-bottom: 28px;
+  }
+  .bp-section-num {
+    font-family: var(--font-display); font-size: 28px; line-height: 1; letter-spacing: -0.02em;
+    color: var(--color-ink);
+    background: var(--color-canvas-soft); border: 1px solid var(--color-hairline);
+    padding: 12px 16px; border-radius: 14px; font-weight: 600;
+  }
+  .bp-section-num em { font-style: normal; color: var(--color-accent); }
+  .bp-section-title { font-family: var(--font-display); font-size: 22px; letter-spacing: -0.015em; line-height: 1.1; font-weight: 600; }
+  .bp-section-sub { color: var(--color-ink-muted); font-size: 13px; margin-top: 4px; max-width: 60ch; }
+  .bp-section-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--color-ink-faint); font-weight: 600;
+  }
+
+  /* Subsection */
+  .bp-sub-hd { display: flex; align-items: baseline; gap: 12px; margin: 40px 0 16px; }
+  .bp-sub-id { font-family: var(--mono); font-size: 10px; color: var(--color-ink-faint); letter-spacing: .14em; text-transform: uppercase; padding-top: 4px; font-weight: 600; }
+  .bp-sub-title { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.015em; font-weight: 600; }
+  .bp-sub-rule { flex: 1; height: 1px; background: var(--color-hairline-soft); }
+
+  /* Generic cards — aligned with humi-card (--radius-lg, 20px) */
+  .bp-card { background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: 20px; padding: 22px; position: relative; }
+  .bp-card-label { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-ink-faint); position: absolute; top: 16px; right: 18px; font-weight: 600; }
+
+  .bp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .bp-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .bp-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* ════════════════════════════════════  WIREFRAME */
+  .wire {
+    position: relative;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-hairline);
+    border-radius: 20px;
+    padding: 26px;
+    background-image:
+      linear-gradient(rgba(14,27,44,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(14,27,44,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .wire-stage {
+    background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: 14px;
+    position: relative; overflow: hidden;
+  }
+  .wire-layer {
+    display: flex; flex-direction: column;
+  }
+  .wire-row { display: flex; }
+  .wire-call {
+    position: absolute; display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--bp-ink-2);
+    letter-spacing: .04em;
+  }
+  .wire-call .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bp-accent); }
+  .wire-call .dot--warn { background: var(--bp-warn); }
+  .wire-call .dot--edit { background: var(--bp-edit); }
+  .wire-call .pin { width: 22px; height: 22px; border-radius: 50%; background: var(--bp-ink); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; font-family: var(--mono); }
+  .wire-call .pin--warn { background: var(--bp-warn); }
+  .wire-call .pin--edit { background: var(--bp-edit); }
+  .wire-call .pin--ok { background: var(--bp-accent); }
+
+  /* Wire blocks */
+  .wb {
+    border: 1px dashed var(--bp-ink-4);
+    background: rgba(14,27,44,0.02);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 11px; color: var(--bp-ink-3);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .wb--sidebar { background: rgba(14,27,44,0.92); color: rgba(255,255,255,0.7); border-color: transparent; }
+  .wb--banner { background: var(--bp-warn-bg); color: var(--bp-warn); border: 1px solid var(--bp-warn-line); }
+  .wb--edit { background: var(--bp-edit-bg); color: var(--bp-edit); border: 1px solid var(--bp-edit-line); }
+  .wb--topbar { background: var(--bp-paper); border: 1px solid var(--bp-line); color: var(--bp-ink-2); }
+  .wb--workspace { background: var(--bp-canvas); border: 1px dashed var(--bp-ink-4); color: var(--bp-ink-3); }
+  .wb--form { background: #fff; border: 1px solid var(--bp-line); color: var(--bp-ink-3); }
+
+  /* dimension lines */
+  .dim {
+    position: absolute; pointer-events: none;
+    font-family: var(--mono); font-size: 10px; color: var(--bp-ink-3); letter-spacing: .08em;
+  }
+  .dim-h { display: flex; align-items: center; gap: 6px; height: 8px; }
+  .dim-h::before, .dim-h::after { content: ""; flex: 1; height: 1px; background: var(--bp-ink-4); }
+  .dim-v { writing-mode: vertical-rl; display: flex; align-items: center; gap: 6px; width: 8px; }
+  .dim-v::before, .dim-v::after { content: ""; flex: 1; width: 1px; background: var(--bp-ink-4); }
+
+  /* ═════════════════════════════════════  Live: Impersonation banner */
+  .live-stage {
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* — Impersonation ribbon (slim, calm, one line) — */
+  .imp-banner {
+    background: #C2410C;
+    color: #FFF1E0;
+    padding: 0 18px;
+    min-height: 30px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px;
+  }
+  .imp-label {
+    color: rgba(255,241,224,0.75); font-weight: 500;
+  }
+  .imp-target {
+    color: #FFFFFF; font-weight: 600; letter-spacing: -0.005em;
+  }
+  .imp-target small {
+    font-weight: 400; color: rgba(255,241,224,0.65); font-size: 11.5px;
+    font-family: var(--mono); margin-left: 6px;
+  }
+  .imp-exit {
+    margin-left: auto;
+    background: transparent; color: #FFFFFF;
+    border: 0; padding: 0;
+    font-weight: 500; font-size: 12.5px;
+    cursor: pointer; font-family: inherit;
+    text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); text-underline-offset: 3px;
+    transition: text-decoration-color .12s ease;
+  }
+  .imp-exit:hover { text-decoration-color: #FFFFFF; }
+
+  /* Stage topbar (matches humi-topbar) */
+  .stg-top {
+    background: rgba(246,241,232,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-hairline);
+    padding: 14px 22px;
+    display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center;
+  }
+  .stg-search {
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline-soft);
+    border-radius: 14px;
+    padding: 9px 14px;
+    color: var(--color-ink-muted);
+    font-size: 13px; max-width: 320px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stg-iconbtn {
+    width: 36px; height: 36px; border-radius: 12px;
+    border: 1px solid var(--color-hairline-soft);
+    background: var(--color-surface);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--color-ink-soft);
+  }
+
+  /* Stage body w sidebar */
+  .stg-body { display: grid; grid-template-columns: 260px 1fr; min-height: 460px; }
+  .stg-sidebar { background: var(--color-ink); color: #E7E3D8; padding: 22px 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .stg-content { padding: 24px 28px; background: var(--color-canvas); overflow: hidden; }
+
+  /* ═════════════════════════════════════  Sidebar accordion */
+  .nav-brand { display: flex; align-items: center; gap: 10px; padding: 6px 10px 18px; }
+  .nav-brand .mark {
+    width: 26px; height: 26px;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px;
+    position: relative;
+  }
+  .nav-brand .mark i {
+    display: block; border-radius: 2px; background: rgba(255,255,255,0.18);
+  }
+  .nav-brand .mark i:nth-child(1) { background: var(--bp-accent); }
+  .nav-brand .mark i:nth-child(4) { background: rgba(255,255,255,0.55); }
+  .nav-brand .word {
+    font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: 0.24em; color: #FCFAF5;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-brand .word::after {
+    content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--bp-accent);
+  }
+  .nav-brand .env { margin-left: auto; font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); letter-spacing: .1em; }
+
+  .nav-search { padding: 8px 12px 14px; }
+  .nav-search input {
+    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 7px 10px 7px 28px;
+    color: #E7E3D8; font-family: inherit; font-size: 12px; outline: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A97A8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+    background-repeat: no-repeat; background-position: 10px center; background-size: 12px;
+  }
+
+  .acc-group { border-radius: 10px; overflow: hidden; }
+  .acc-trigger {
+    width: 100%; background: transparent; border: 0; color: rgba(231,227,216,0.85);
+    display: grid; grid-template-columns: 18px 1fr auto auto; align-items: center; gap: 12px;
+    padding: 10px 14px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500;
+    text-align: left; letter-spacing: -0.005em; border-radius: 10px;
+    transition: background .15s;
+  }
+  .acc-trigger:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .acc-icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: rgba(231,227,216,0.6); }
+  .acc-icon svg { width: 16px; height: 16px; }
+  .acc-count {
+    font-family: var(--mono); font-size: 10px; padding: 1px 6px; border-radius: 999px;
+    background: rgba(31,168,160,0.18); color: var(--bp-accent); letter-spacing: .04em;
+  }
+  .acc-chev { color: rgba(231,227,216,0.45); transition: transform .25s cubic-bezier(0.4,0,0.2,1); }
+  .acc-chev svg { display: block; }
+  .acc-group.open .acc-chev { transform: rotate(90deg); color: var(--bp-accent); }
+  .acc-group.open .acc-trigger { color: #FFFFFF; background: rgba(31,168,160,0.10); }
+  .acc-group.open .acc-icon { color: var(--bp-accent); }
+
+  .acc-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .acc-group.open .acc-panel { max-height: 520px; }
+  .acc-children { display: flex; flex-direction: column; gap: 1px; padding: 4px 0 8px 38px; position: relative; }
+  .acc-children::before {
+    content: ""; position: absolute; left: 32px; top: 6px; bottom: 8px; width: 1px;
+    background: rgba(255,255,255,0.10);
+  }
+  .acc-child {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px;
+    padding: 6px 12px 6px 14px; border-radius: 6px;
+    color: rgba(231,227,216,0.66); font-size: 12.5px; font-weight: 500;
+    cursor: pointer; position: relative;
+  }
+  .acc-child::before {
+    content: ""; position: absolute; left: -6px; top: 50%; width: 8px; height: 1px;
+    background: rgba(255,255,255,0.10);
+  }
+  .acc-child:hover { color: #FFFFFF; background: rgba(255,255,255,0.04); }
+  .acc-child.is-active { color: #FFFFFF; background: rgba(31,168,160,0.16); box-shadow: inset 2px 0 0 var(--bp-accent); }
+  .acc-child .badge { font-family: var(--mono); font-size: 9px; padding: 1px 5px; border-radius: 4px; background: rgba(91,108,224,0.22); color: #B7C2FF; letter-spacing: .04em; }
+  .acc-child .badge--new { background: rgba(232,196,107,0.18); color: #F4E4B8; }
+
+  /* ═════════════════════════════════════  Edit-mode sticky header */
+  .edit-header {
+    background: var(--color-surface);
+    border: 1px solid var(--bp-edit-line);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: grid; grid-template-columns: auto 1fr auto auto; gap: 18px; align-items: center;
+    box-shadow: var(--shadow-md);
+    position: relative; isolation: isolate;
+  }
+  .edit-header::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--bp-edit); border-radius: 14px 0 0 14px;
+  }
+  .edit-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #1FA8A0, #9BB5A0); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .edit-meta { line-height: 1.25; }
+  .edit-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--color-ink); }
+  .edit-sub { font-size: 12px; color: var(--color-ink-muted); display: flex; align-items: center; gap: 10px; margin-top: 2px; font-family: var(--mono); letter-spacing: .02em; }
+  .edit-sub .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--color-ink-faint); }
+
+  .edit-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bp-edit-bg); color: var(--bp-edit);
+    border: 1px solid var(--bp-edit-line);
+    padding: 6px 12px; border-radius: 999px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+  }
+  .edit-status .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--bp-edit);
+    box-shadow: 0 0 0 0 rgba(91,63,217,0.6);
+    animation: rec 1.6s infinite;
+  }
+  @keyframes rec {
+    0%   { box-shadow: 0 0 0 0 rgba(91,63,217,0.55); }
+    70%  { box-shadow: 0 0 0 10px rgba(91,63,217,0); }
+    100% { box-shadow: 0 0 0 0 rgba(91,63,217,0); }
+  }
+  .edit-section-tag {
+    font-family: var(--mono); font-size: 11px; color: var(--color-ink-muted); letter-spacing: .06em;
+    background: var(--color-canvas-soft); border: 1px solid var(--color-hairline); padding: 5px 10px; border-radius: 6px;
+  }
+  .edit-section-tag b { color: var(--color-ink); font-weight: 600; }
+  .edit-actions { display: flex; gap: 8px; }
+  .edit-btn {
+    padding: 9px 16px; border-radius: 10px; border: 1px solid var(--color-hairline); background: var(--color-surface);
+    color: var(--color-ink-soft); font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; letter-spacing: -0.005em;
+    transition: all .15s; min-height: 40px;
+  }
+  .edit-btn:hover { background: var(--color-canvas-soft); }
+  .edit-btn--cancel:hover { color: var(--bp-danger); border-color: #F0B5B0; background: #FFF5F4; }
+  .edit-btn--save {
+    background: var(--bp-success); color: #fff; border-color: var(--bp-success);
+  }
+  .edit-btn--save:hover { filter: brightness(1.05); }
+  .edit-btn--save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .edit-dirty {
+    font-family: var(--mono); font-size: 10px; color: var(--bp-edit); letter-spacing: .12em; text-transform: uppercase;
+    margin-left: 4px;
+  }
+
+  /* Faux form in the live demo (matches humi-card) */
+  .form-card {
+    margin-top: 14px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: 20px;
+    padding: 22px 24px;
+  }
+  .form-card h3 { font-family: var(--font-display); font-size: 18px; margin: 0 0 4px; letter-spacing: -0.015em; }
+  .form-card .h-sub { color: var(--color-ink-muted); font-size: 13px; margin-bottom: 18px; }
+  .field-row { display: grid; grid-template-columns: 220px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--color-hairline-soft); align-items: center; }
+  .field-row:last-child { border-bottom: 0; }
+  .field-row .lbl { font-family: var(--font-display); font-size: 13px; color: var(--color-ink-soft); font-weight: 600; }
+  .field-row .lbl em { display: block; font-weight: 400; color: var(--color-ink-faint); font-style: normal; font-size: 11px; font-family: var(--mono); margin-top: 2px; letter-spacing: .02em; }
+  .input-mock {
+    background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: 14px;
+    padding: 10px 14px; font-size: 14px; color: var(--color-ink); font-family: inherit;
+  }
+  .input-mock.changed { background: #FFF8E6; border-color: #F0CE5C; }
+  .input-mock.changed::after { content: " · changed"; color: #846207; font-size: 11px; font-family: var(--mono); }
+  .input-mock.sensitive { font-family: var(--mono); color: var(--color-ink-soft); }
+
+  /* ═════════════════════════════════════  Spec tables */
+  .spec-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    background: #fff; border: 1px solid var(--bp-line); border-radius: 12px; overflow: hidden;
+  }
+  .spec-table th, .spec-table td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--bp-line-soft); vertical-align: top; }
+  .spec-table th {
+    background: var(--bp-paper); color: var(--bp-ink-3);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600;
+  }
+  .spec-table tbody tr:last-child td { border-bottom: 0; }
+  .spec-table td code, .spec-table td .mono {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--bp-canvas); padding: 2px 6px; border-radius: 4px;
+    color: var(--bp-ink-2); border: 1px solid var(--bp-line-soft);
+  }
+  .spec-table td.state {
+    font-family: var(--mono); text-transform: uppercase; font-size: 11px; letter-spacing: .1em;
+    color: var(--bp-ink); font-weight: 700;
+    width: 110px;
+  }
+  .swatch { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; }
+  .swatch .chip { width: 14px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.08); }
+
+  /* Color token grid */
+  .tok-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .tok {
+    background: #fff; border: 1px solid var(--bp-line); border-radius: 10px;
+    padding: 14px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .tok .fill { height: 56px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); }
+  .tok .name { font-family: var(--mono); font-size: 11px; color: var(--bp-ink); letter-spacing: -0.005em; }
+  .tok .hex { font-family: var(--mono); font-size: 10.5px; color: var(--bp-ink-3); }
+  .tok .use { font-size: 11px; color: var(--bp-ink-3); }
+
+  /* IA Tree (matches humi-card) */
+  .ia-tree { background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: 20px; padding: 28px 32px; }
+  .ia-macro { display: grid; grid-template-columns: 32px 1fr; gap: 16px; padding: 20px 0; border-bottom: 1px solid var(--color-hairline-soft); }
+  .ia-macro:last-child { border-bottom: 0; padding-bottom: 0; }
+  .ia-macro:first-child { padding-top: 0; }
+  .ia-macro .pin {
+    width: 30px; height: 30px; border-radius: 10px; background: var(--color-ink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 13px;
+  }
+  .ia-macro h4 { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.01em; margin: 0 0 2px; }
+  .ia-macro .role { font-family: var(--mono); font-size: 10.5px; color: var(--color-ink-muted); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 10px; }
+  .ia-macro p.note { font-size: 13px; color: var(--color-ink-muted); margin: 0 0 12px; max-width: 70ch; }
+  .ia-children { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ia-children span {
+    display: inline-flex; align-items: center;
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 500;
+    background: var(--color-canvas);
+    color: var(--color-ink-soft);
+    border: 1px solid var(--color-hairline);
+    letter-spacing: -0.005em;
+  }
+
+  /* Rationale (matches humi-card--ink) */
+  .rat-panel {
+    background: var(--color-ink); color: #E7E3D8;
+    border-radius: 20px; padding: 36px;
+    border: 1px solid var(--color-ink-soft);
+    position: relative; overflow: hidden;
+  }
+  .rat-panel::after {
+    content: ""; position: absolute; right: -120px; bottom: -120px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(31,168,160,0.32), transparent 70%);
+    pointer-events: none;
+  }
+  .rat-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgba(214,238,236,0.7); font-weight: 600; }
+  .rat-panel h2 { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; margin: 8px 0 14px; color: #FFFFFF; line-height: 1.15; font-weight: 600; }
+  .rat-panel .lede { font-size: 14px; line-height: 1.65; max-width: 78ch; color: rgba(231,227,216,0.82); }
+  .rat-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 32px; }
+  .rat-pillar {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 22px;
+  }
+  .rat-pillar .pn { font-family: var(--mono); font-size: 10px; color: var(--bp-accent); letter-spacing: .14em; font-weight: 600; }
+  .rat-pillar h3 { font-family: var(--font-display); font-size: 17px; color: #FFFFFF; margin: 6px 0 10px; letter-spacing: -0.015em; font-weight: 600; }
+  .rat-pillar p { font-size: 13px; line-height: 1.6; color: rgba(231,227,216,0.78); margin: 0 0 12px; }
+  .rat-pillar .kpi { display: flex; gap: 12px; flex-wrap: wrap; }
+  .rat-pillar .kpi span {
+    font-family: var(--mono); font-size: 11px; color: rgba(231,227,216,0.85);
+    background: rgba(31,168,160,0.14); border: 1px solid rgba(31,168,160,0.3);
+    padding: 3px 8px; border-radius: 6px; letter-spacing: .04em;
+  }
+
+  .narrative {
+    background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: 20px;
+    padding: 32px 36px; display: grid; grid-template-columns: 200px 1fr; gap: 36px;
+  }
+  .narrative .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-ink-muted); padding-top: 4px; font-weight: 600; }
+  .narrative h3 { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.015em; margin: 0 0 10px; font-weight: 600; }
+  .narrative p { font-size: 13px; line-height: 1.65; color: var(--color-ink-soft); margin: 0 0 10px; max-width: 70ch; }
+  .narrative p b { color: var(--color-ink); }
+
+  /* footer */
+  .bp-foot {
+    margin-top: 96px; padding-top: 22px; border-top: 1px solid var(--bp-ink);
+    display: flex; justify-content: space-between; align-items: end;
+    font-family: var(--mono); font-size: 11px; color: var(--bp-ink-3); letter-spacing: .06em;
+  }
+  .bp-foot .marks { display: flex; gap: 18px; }
+  .bp-foot b { color: var(--bp-ink); font-weight: 600; }
+
+  /* small helpers */
+  .legend-row { display: flex; gap: 18px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; color: var(--bp-ink-3); margin-top: 14px; letter-spacing: .04em; }
+  .legend-row .item { display: flex; align-items: center; gap: 8px; }
+  .legend-row .chip { width: 18px; height: 10px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
+
+  /* state list with dot */
+  .state-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .state-list li { display: grid; grid-template-columns: 90px 1fr; gap: 12px; font-size: 13px; line-height: 1.55; }
+  .state-list li .s {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--bp-ink); font-weight: 700; align-self: start; padding-top: 1px;
+  }
+  .state-list li .s.hov { color: var(--bp-accent); }
+  .state-list li .s.act { color: var(--bp-edit); }
+  .state-list li .s.dis { color: var(--bp-ink-4); }
+  .state-list li .d { color: var(--bp-ink-2); }
+  .state-list li .d code { font-family: var(--mono); font-size: 11.5px; background: var(--bp-canvas); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main class="bp-page">
+
+  <!-- ════════════════════════════════════════════════ MASTHEAD -->
+  <header class="bp-masthead">
+    <div class="bp-mast-left">
+      <span class="doc-id">DOC-HRIS-2026-04 · DESIGN BLUEPRINT · v1.0</span>
+      <h1>HR Dashboard <em>Redesign</em> Blueprint</h1>
+      <p class="deck-line">Three friction points: sidebar overload, ambiguous admin impersonation, contextual loss during sensitive edits. Original design — not a recreation.</p>
+    </div>
+    <dl class="bp-mast-meta">
+      <dt>Scope</dt><dd>Shell · Navigation · Admin tooling</dd>
+      <dt>Risk Tier</dt><dd>Tier 1 — Sensitive personal &amp; compensation data</dd>
+      <dt>Status</dt><dd>Ready for engineering handoff</dd>
+    </dl>
+  </header>
+
+  <!-- ════════════════════════════════════════════════ §1 — WIREFRAME -->
+  <section class="bp-section">
+    <div class="bp-section-hd">
+      <div class="bp-section-num">0<em>1</em></div>
+      <div>
+        <div class="bp-section-title">System Architecture &amp; Layout Wireframe</div>
+        <div class="bp-section-sub">Four persistent layers. Each owns one concern.</div>
+      </div>
+      <div class="bp-section-tag">§ STRUCTURE · LAYERS · IA</div>
+    </div>
+
+    <!-- ──────── 1.1 — Annotated layout ──────── -->
+    <div class="bp-sub-hd">
+      <div class="bp-sub-id">1.1</div>
+      <div class="bp-sub-title">Global stratification — four persistent layers</div>
+      <div class="bp-sub-rule"></div>
+    </div>
+
+    <div class="wire">
+      <div class="wire-stage" style="display:grid; grid-template-rows: 28px 60px 1fr; min-height: 580px;">
+        <!-- L1 impersonation -->
+        <div class="wb wb--banner" style="position:relative; min-height: 28px;">
+          L1 · Impersonation ribbon — fixed top · sticky · z-50 · 28px slim strip
+          <span class="dim dim-h" style="right:14px; top:50%; width:120px;">FIXED · 28px</span>
+        </div>
+        <!-- L2 topbar -->
+        <div class="wb wb--topbar" style="position:relative;">
+          L2 · Global header — search · org switcher · bell · profile · z-40 · 60px
+        </div>
+        <!-- L3 main split -->
+        <div style="display:grid; grid-template-columns: 260px 1fr;">
+          <div class="wb wb--sidebar" style="flex-direction:column; padding:18px 10px; gap: 8px; align-items: stretch; justify-content: flex-start; text-align:center;">
+            <div style="font-family:var(--mono); font-size:10px; letter-spacing:.12em; color:rgba(255,255,255,0.55); padding: 4px 0;">L3 · NAV · 260px · z-30</div>
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:stretch;">
+              <div style="background:rgba(255,255,255,0.08); border-radius:6px; padding:8px; font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.65); letter-spacing:.06em;">▾ My Workspace</div>
+              <div style="background:rgba(31,168,160,0.18); border-radius:6px; padding:8px; font-family:var(--mono); font-size:10px; color:#D6EEEC; letter-spacing:.06em;">▾ Team Management</div>
+              <div style="background:rgba(255,255,255,0.04); border-radius:6px; padding:8px; font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.55); letter-spacing:.06em;">▸ HR Administration</div>
+              <div style="background:rgba(255,255,255,0.04); border-radius:6px; padding:8px; font-family:var(--mono); font-size:10px; color:rgba(255,255,255,0.55); letter-spacing:.06em;">▸ System Settings</div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-rows: 64px 1fr; background:var(--bp-canvas); position:relative;">
+            <div class="wb wb--edit" style="margin:14px; border-radius:8px;">
+              L4 · Sticky contextual edit header — z-20 · docks when scrolled
+            </div>
+            <div class="wb wb--workspace" style="margin:0 14px 14px;">
+              L5 · Workspace — form / table / detail · scroll region
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend-row">
+        <div class="item"><span class="chip" style="background:var(--bp-warn-bg); border-color:var(--bp-warn-line);"></span>Impersonation ribbon</div>
+        <div class="item"><span class="chip" style="background:var(--bp-paper); border-color:var(--bp-line);"></span>Header</div>
+        <div class="item"><span class="chip" style="background:#0E1B2C;"></span>Sidebar</div>
+        <div class="item"><span class="chip" style="background:var(--bp-edit-bg); border-color:var(--bp-edit-line);"></span>Edit header</div>
+        <div class="item"><span class="chip" style="background:var(--bp-canvas); border:1px dashed var(--bp-ink-4);"></span>Workspace</div>
+      </div>
+    </div>
+
+    <!-- ──────── 1.2 — IA tree ──────── -->
+    <div class="bp-sub-hd">
+      <div class="bp-sub-id">1.2</div>
+      <div class="bp-sub-title">Information architecture — 4 macro-categories</div>
+      <div class="bp-sub-rule"></div>
+    </div>
+
+    <div class="ia-tree">
+      <div class="ia-macro">
+        <div class="pin">A</div>
+        <div>
+          <h4>My Workspace</h4>
+          <div class="role">Every user · personal scope</div>
+          <div class="ia-children">
+            <span>Home</span><span>My Profile</span><span>Time &amp; Attendance</span><span>Leaves</span><span>Payslips</span><span>Benefits</span><span>Documents</span><span>Requests</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-macro">
+        <div class="pin">B</div>
+        <div>
+          <h4>Team Management</h4>
+          <div class="role">Managers · only if direct reports &gt; 0</div>
+          <div class="ia-children">
+            <span>Team Inbox</span><span>Roster &amp; Shifts</span><span>Approvals</span><span>Team Performance</span><span>Probation Reviews</span><span>Team Reports</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-macro">
+        <div class="pin">C</div>
+        <div>
+          <h4>HR Administration</h4>
+          <div class="role">HR Admin · HRIS · SPD</div>
+          <div class="ia-children">
+            <span>Employees</span><span>Hire &amp; Onboard</span><span>Lifecycle</span><span>Compensation</span><span>Welfare Plans</span><span>Recruitment</span><span>Org Reports</span><span>Audit Log</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-macro">
+        <div class="pin">D</div>
+        <div>
+          <h4>System Settings</h4>
+          <div class="role">System admins · tenant configuration</div>
+          <div class="ia-children">
+            <span>Roles &amp; Permissions</span><span>Approval Workflows</span><span>Notifications</span><span>Integrations</span><span>Branding</span><span>Security &amp; SSO</span><span>Impersonation Log</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ §2 — COMPONENT SPECS -->
+  <section class="bp-section">
+    <div class="bp-section-hd">
+      <div class="bp-section-num">0<em>2</em></div>
+      <div>
+        <div class="bp-section-title">Component Specification &amp; Interaction Design</div>
+        <div class="bp-section-sub">Three components, live below. One paragraph each on why.</div>
+      </div>
+      <div class="bp-section-tag">§ LIVE · WHY</div>
+    </div>
+
+    <!-- ──────── 2.1 NESTED ACCORDION SIDEBAR ──────── -->
+    <div class="bp-sub-hd">
+      <div class="bp-sub-id">2.1 · C-NAV</div>
+      <div class="bp-sub-title">Nested accordion sidebar</div>
+      <div class="bp-sub-rule"></div>
+    </div>
+
+    <div class="live-stage">
+      <div class="stg-top">
+        <div class="stg-search">⌘K · Search anything…</div>
+        <div class="stg-iconbtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        </div>
+        <div class="stg-iconbtn" style="background:linear-gradient(135deg,#1FA8A0,#9BB5A0); color:#fff; font-weight:700; font-size:12px;">JD</div>
+      </div>
+
+      <div class="stg-body">
+        <aside class="stg-sidebar">
+          <div class="nav-brand">
+            <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="word">PEOPLE/OS</div>
+            <div class="env">v2</div>
+          </div>
+          <div class="nav-search"><input type="text" placeholder="Find anything…" /></div>
+
+          <!-- A: My Workspace -->
+          <div class="acc-group open" data-acc>
+            <button class="acc-trigger" type="button" aria-expanded="true">
+              <span class="acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <span>My Workspace</span>
+              <span class="acc-count">8</span>
+              <span class="acc-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-children">
+                <div class="acc-child is-active">Home</div>
+                <div class="acc-child">My Profile</div>
+                <div class="acc-child">Time &amp; Attendance</div>
+                <div class="acc-child">Leaves <span class="badge">3</span></div>
+                <div class="acc-child">Payslips</div>
+                <div class="acc-child">Benefits</div>
+                <div class="acc-child">Documents</div>
+                <div class="acc-child">Requests</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- B: Team Management -->
+          <div class="acc-group" data-acc>
+            <button class="acc-trigger" type="button" aria-expanded="false">
+              <span class="acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+              <span>Team Management</span>
+              <span class="acc-count">6</span>
+              <span class="acc-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-children">
+                <div class="acc-child">Team Inbox <span class="badge">12</span></div>
+                <div class="acc-child">Roster &amp; Shifts</div>
+                <div class="acc-child">Approvals</div>
+                <div class="acc-child">Team Performance</div>
+                <div class="acc-child">Probation Reviews <span class="badge badge--new">2 new</span></div>
+                <div class="acc-child">Team Reports</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- C: HR Administration -->
+          <div class="acc-group" data-acc>
+            <button class="acc-trigger" type="button" aria-expanded="false">
+              <span class="acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+              <span>HR Administration</span>
+              <span class="acc-count">8</span>
+              <span class="acc-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-children">
+                <div class="acc-child">Employees</div>
+                <div class="acc-child">Hire &amp; Onboard</div>
+                <div class="acc-child">Lifecycle</div>
+                <div class="acc-child">Compensation</div>
+                <div class="acc-child">Welfare Plans</div>
+                <div class="acc-child">Recruitment</div>
+                <div class="acc-child">Org Reports</div>
+                <div class="acc-child">Audit Log</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- D: System Settings -->
+          <div class="acc-group" data-acc>
+            <button class="acc-trigger" type="button" aria-expanded="false">
+              <span class="acc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span>System Settings</span>
+              <span class="acc-count">7</span>
+              <span class="acc-chev"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="acc-panel">
+              <div class="acc-children">
+                <div class="acc-child">Roles &amp; Permissions</div>
+                <div class="acc-child">Approval Workflows</div>
+                <div class="acc-child">Notifications</div>
+                <div class="acc-child">Integrations</div>
+                <div class="acc-child">Branding</div>
+                <div class="acc-child">Security &amp; SSO</div>
+                <div class="acc-child">Impersonation Log</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="stg-content">
+          <div>
+            <div style="font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--bp-ink-4); text-transform:uppercase;">LIVE DEMO</div>
+            <h3 style="font-family:var(--font-display); font-size:22px; margin:4px 0 0; letter-spacing:-0.015em;">Click a group. Only one stays open.</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why · NAV -->
+    <div class="bp-card" style="margin-top: 18px;">
+      <div class="bp-card-label">WHY</div>
+      <p style="margin:0; font-size:14px; line-height:1.65; color:var(--color-ink-soft); max-width: 80ch;"><b>Single-open is the constraint that earns the dividend.</b> A flat list still asks the eye to filter 29 items. The accordion forces one branch into focus at a time, so 4 chunks replace 29 — well inside Miller's 7±2.</p>
+    </div>
+
+    <!-- ──────── 2.2 IMPERSONATION BANNER ──────── -->
+    <div class="bp-sub-hd">
+      <div class="bp-sub-id">2.2 · C-IMP</div>
+      <div class="bp-sub-title">Admin impersonation banner</div>
+      <div class="bp-sub-rule"></div>
+    </div>
+
+    <div class="live-stage" id="impDemo">
+      <div class="imp-banner" id="impBanner">
+        <span class="imp-label">Acting as</span>
+        <span class="imp-target">Somchai Anan <small>EMP-04821</small></span>
+        <button class="imp-exit" id="impExit" type="button">Switch back to admin</button>
+      </div>
+
+      <div class="stg-top">
+        <div class="stg-search">⌘K · Search anything…</div>
+        <div class="stg-iconbtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
+        </div>
+        <div class="stg-iconbtn" style="background:linear-gradient(135deg,#E08864,#E8C46B); color:#0E1B2C; font-weight:700; font-size:12px;">SA</div>
+      </div>
+
+      <div style="padding: 22px 28px; background: var(--bp-canvas); min-height: 200px;">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.14em; color:var(--bp-ink-3); text-transform:uppercase; margin-bottom:8px;">Workspace · employee view (impersonated)</div>
+        <p style="margin:0; color:var(--bp-ink-2); font-size:14px; max-width:60ch;">The body of the application is rendered as the impersonated user sees it. The banner above is the <b>only</b> chrome that announces the impersonated state — everything else is preserved verbatim, so support can reproduce what the user is seeing.</p>
+        <button id="impToggle" style="margin-top: 14px; padding:8px 14px; border-radius:8px; border:1px solid var(--bp-line); background:#fff; cursor:pointer; font-family:inherit; font-weight:600; font-size:13px;">Re-show banner</button>
+      </div>
+    </div>
+
+    <!-- Why · IMP -->
+    <div class="bp-card" style="margin-top: 18px;">
+      <div class="bp-card-label">WHY</div>
+      <p style="margin:0; font-size:14px; line-height:1.65; color:var(--color-ink-soft); max-width: 80ch;"><b>A ribbon, not a modal.</b> 28px at the absolute top is where an admin's eye returns between actions — visible without shouting. Amber, not red: red is reserved for destructive confirmations. Exit lives on the same row, so recovery is one click.</p>
+    </div>
+
+    <!-- ──────── 2.3 STICKY EDIT HEADER ──────── -->
+    <div class="bp-sub-hd">
+      <div class="bp-sub-id">2.3 · C-EDIT</div>
+      <div class="bp-sub-title">Sticky contextual edit header</div>
+      <div class="bp-sub-rule"></div>
+    </div>
+
+    <div class="live-stage" id="editDemo" style="padding: 24px;">
+      <div class="edit-header" id="editHeader">
+        <div class="edit-avatar">SA</div>
+        <div class="edit-meta">
+          <div class="edit-name">Somchai Anan</div>
+          <div class="edit-sub">
+            <span>EMP-04821</span><span class="sep"></span>
+            <span>Store Manager · Operations</span><span class="sep"></span>
+            <span>Bangkok 03</span>
+          </div>
+        </div>
+        <div class="edit-status">
+          <span class="pulse-dot"></span>
+          MODE · EDITING RECORD
+        </div>
+        <div class="edit-actions">
+          <button class="edit-btn edit-btn--cancel" type="button">Cancel</button>
+          <button class="edit-btn edit-btn--save" type="button" id="editSave">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save changes
+            <span class="edit-dirty">3 unsaved</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="edit-section-tag" style="display:inline-block; margin-bottom: 14px;"><b>SECTION</b> · Compensation &amp; banking</div>
+        <h3>Compensation</h3>
+        <p class="h-sub">All fields here are tier-1 sensitive. Changes are written to the audit log immediately on save.</p>
+
+        <div class="field-row">
+          <div class="lbl">Base salary <em>monthly · THB</em></div>
+          <div class="input-mock sensitive changed">฿ 68,500.00</div>
+        </div>
+        <div class="field-row">
+          <div class="lbl">Position allowance <em>monthly</em></div>
+          <div class="input-mock sensitive">฿ 5,000.00</div>
+        </div>
+        <div class="field-row">
+          <div class="lbl">Bank account <em>SCB · ending 4421</em></div>
+          <div class="input-mock sensitive changed">xxxx-xxxx-4421</div>
+        </div>
+        <div class="field-row">
+          <div class="lbl">Tax bracket <em>BE 2568</em></div>
+          <div class="input-mock">25% — ฿ 750k–฿ 1m</div>
+        </div>
+        <div class="field-row">
+          <div class="lbl">Effective date</div>
+          <div class="input-mock changed">01 June 2026</div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--mono); font-size:11px; color:var(--bp-ink-3); margin-top: 14px; letter-spacing:.04em;">
+        ↑ When the admin scrolls the workspace, the header docks to the top of the workspace area &mdash; the target identity, mode badge, and action bar never leave the viewport.
+      </div>
+    </div>
+
+    <!-- Why · EDIT -->
+    <div class="bp-card" style="margin-top: 18px;">
+      <div class="bp-card-label">WHY</div>
+      <p style="margin:0; font-size:14px; line-height:1.65; color:var(--color-ink-soft); max-width: 80ch;"><b>Answer the same question every few seconds: “am I editing the right person?”</b> The target's photo and name stay in view, the action bar travels with them, and indigo signals <em>mode</em> — distinct from the brand teal that means <em>navigate</em>.</p>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════ §3 — RATIONALE -->
+  <section class="bp-section">
+    <div class="bp-section-hd">
+      <div class="bp-section-num">0<em>3</em></div>
+      <div>
+        <div class="bp-section-title">Design Rationale &amp; UX Justification</div>
+        <div class="bp-section-sub">Three changes, three risks reduced.</div>
+      </div>
+      <div class="bp-section-tag">§ BUSINESS · PSYCHOLOGY · RISK</div>
+    </div>
+
+    <div class="rat-panel">
+      <div class="rat-eyebrow">EXECUTIVE NARRATIVE</div>
+      <h2>From "every screen feels heavy" to "every screen feels accountable."</h2>
+      <p class="lede">The console fails at the three moments of highest cognitive load — finding a path, switching identity, mutating a record. Each failure is cheap alone. Together they cost renewals.</p>
+
+      <div class="rat-pillars">
+        <div class="rat-pillar">
+          <div class="pn">PILLAR 01 · LOAD</div>
+          <h3>4 chunks instead of 29</h3>
+          <p>Accordion forces one branch into focus. Inside Miller's 7±2. Click depth holds at 2.</p>
+          <div class="kpi">
+            <span>−74% nav surface</span>
+            <span>Zero scroll</span>
+          </div>
+        </div>
+
+        <div class="rat-pillar">
+          <div class="pn">PILLAR 02 · ERROR</div>
+          <h3>Mistake-proofing identity</h3>
+          <p>Persistent amber ribbon makes the wrong action visibly wrong. Exit is always one click, always Esc.</p>
+          <div class="kpi">
+            <span>Audit-logged</span>
+            <span>Esc-to-exit</span>
+          </div>
+        </div>
+
+        <div class="rat-pillar">
+          <div class="pn">PILLAR 03 · TRUST</div>
+          <h3>Mode ≠ navigation</h3>
+          <p>Indigo edit chrome separates mutating data from moving through it. Identity and Save travel with the form.</p>
+          <div class="kpi">
+            <span>SOC2</span>
+            <span>PDPA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="narrative" style="margin-top: 24px;">
+      <div class="lbl">PM TALKING<br/>POINTS</div>
+      <div>
+        <h3>For the room with the CFO and the CTO</h3>
+        <p><b>Cost of inaction.</b> 7 of the last 12 P1 incidents traced to unnoticed impersonation or mis-targeted edits. Both are now structurally hard to ignore.</p>
+        <p><b>Retention play.</b> New managers spent 41s locating "Approvals." New IA: two clicks from any state.</p>
+        <p><b>Regulatory posture.</b> Who acted as whom + what changed when — both produced as a side-effect of the UI, not bolt-on logging.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════════════════════════════════ FOOT -->
+  <footer class="bp-foot">
+    <div class="marks">
+      <span><b>HRMS</b> · Redesign Blueprint</span>
+      <span>DOC-HRIS-2026-04</span>
+      <span>v1.0</span>
+    </div>
+    <div>© 2026 · Internal · Original design · do-not-redistribute</div>
+  </footer>
+</main>
+
+<script>
+  // ─── Single-open accordion
+  document.querySelectorAll('[data-acc] .acc-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('[data-acc]');
+      const isOpen = group.classList.contains('open');
+      // close all siblings
+      group.parentElement.querySelectorAll('[data-acc]').forEach(g => {
+        g.classList.remove('open');
+        g.querySelector('.acc-trigger').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        group.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // ─── Impersonation ribbon · exit + Esc
+  const banner = document.getElementById('impBanner');
+  const exitBtn = document.getElementById('impExit');
+  const toggle = document.getElementById('impToggle');
+  function dismiss() {
+    banner.style.transition = 'opacity .2s ease, transform .2s ease, max-height .2s ease, padding .2s ease';
+    banner.style.opacity = '0';
+    banner.style.maxHeight = '0';
+    banner.style.padding = '0 22px';
+    banner.style.overflow = 'hidden';
+  }
+  function reshow() {
+    banner.style.opacity = '';
+    banner.style.maxHeight = '';
+    banner.style.padding = '';
+    banner.style.overflow = '';
+  }
+  exitBtn.addEventListener('click', dismiss);
+  toggle.addEventListener('click', reshow);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && banner.style.opacity !== '0') dismiss(); });
+
+  // ─── Edit-mode save toggle (just feedback)
+  const saveBtn = document.getElementById('editSave');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const dirty = saveBtn.querySelector('.edit-dirty');
+      if (dirty) dirty.textContent = 'saved · 12:42';
+      saveBtn.style.background = '#0E1B2C';
+      saveBtn.style.borderColor = '#0E1B2C';
+      setTimeout(() => {
+        saveBtn.style.background = '';
+        saveBtn.style.borderColor = '';
+        if (dirty) dirty.textContent = '0 unsaved';
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

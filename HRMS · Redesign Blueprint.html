@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>HRMS · Redesign Blueprint</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="prod-tokens.css"/>
+<style>
+  :root {
+    --imp-bg:    #C2410C;
+    --imp-fg:    #FFF1E0;
+    --edit-bg:   #ECE7FE;
+    --edit-line: #C7BCFF;
+    --edit:      #5B3FD9;
+    --save:      #0E7A5F;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  }
+  html, body { margin: 0; padding: 0; background: var(--color-canvas); }
+  body { font-family: var(--font-sans); color: var(--color-ink); letter-spacing: -0.005em; -webkit-font-smoothing: antialiased; font-feature-settings: 'ss01', 'cv11'; }
+
+  /* page chrome — match the board's humi-main padding */
+  .page { max-width: 1280px; margin: 0 auto; padding: 32px 32px 80px; }
+
+  /* topbar (matches humi-topbar) */
+  .topbar {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 0 22px;
+    border-bottom: 1px solid var(--color-hairline);
+    margin-bottom: 28px;
+  }
+  .topbar .doc-id { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-ink-faint); font-weight: 600; }
+  .topbar h1 { margin: 4px 0 0; font-family: var(--font-display); font-size: 28px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; }
+  .topbar h1 em { font-style: italic; color: var(--color-accent); font-weight: 500; }
+  .topbar .meta { margin-left: auto; display: flex; gap: 8px; }
+
+  /* section eyebrow */
+  .section { margin-top: 48px; }
+  .section-hd { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+  .section-hd .num {
+    font-family: var(--font-display); font-size: 28px; font-weight: 700;
+    color: var(--color-ink); letter-spacing: -0.025em; line-height: 1;
+  }
+  .section-hd .num em { font-style: normal; color: var(--color-accent); }
+  .section-hd .titles { display: flex; flex-direction: column; gap: 2px; }
+  .section-hd .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-ink-faint); font-weight: 600; }
+  .section-hd h2 { margin: 0; font-family: var(--font-display); font-size: 20px; letter-spacing: -0.015em; font-weight: 600; }
+
+  /* generic card head (matches humi-eyebrow + section-title) */
+  .ch-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+  .ch-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-ink-faint); font-weight: 700; }
+  .ch-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.015em; margin-top: 4px; }
+
+  /* KPI stat strip (PDH_Stat pattern) */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 14px; padding: 16px 20px;
+  }
+  .stat .lbl { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-ink-faint); font-weight: 700; }
+  .stat .val {
+    font-family: var(--font-display); font-size: 26px; font-weight: 700;
+    margin-top: 6px; line-height: 1; letter-spacing: -0.02em;
+  }
+  .stat .sub { font-size: 11px; color: var(--color-ink-muted); margin-top: 5px; }
+
+  /* row layouts */
+  .row-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  .row-2-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  /* IA list (lifecycle items pattern) */
+  .ia {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 14px; padding: 22px;
+  }
+  .ia-row {
+    display: grid; grid-template-columns: 28px 1fr;
+    gap: 14px; padding: 14px 0;
+    border-top: 1px solid #F1ECDF; align-items: start;
+  }
+  .ia-row:first-of-type { border-top: 0; padding-top: 6px; }
+  .ia-row .pin {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(31,168,160,0.16); color: var(--color-accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-weight: 700; font-size: 12px;
+  }
+  .ia-row .name { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+  .ia-row .role { font-size: 11px; color: var(--color-ink-muted); margin-top: 2px; }
+  .ia-row .children { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .ia-row .children span {
+    font-size: 11.5px; padding: 4px 10px; border-radius: 999px;
+    background: var(--color-canvas); border: 1px solid var(--color-hairline);
+    color: var(--color-ink-soft); font-weight: 500;
+  }
+
+  /* live demo stage — looks like a screenshot of the app */
+  .demo-stage {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 14px; overflow: hidden;
+  }
+  .demo-topbar {
+    background: rgba(246,241,232,0.85); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--color-hairline);
+    padding: 12px 18px;
+    display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center;
+  }
+  .demo-search {
+    background: var(--color-surface); border: 1px solid var(--color-hairline-soft);
+    border-radius: 14px; padding: 8px 12px;
+    color: var(--color-ink-muted); font-size: 13px; max-width: 280px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .demo-search kbd { margin-left: auto; font-family: var(--mono); font-size: 10px; background: var(--color-canvas); border: 1px solid var(--color-hairline); border-radius: 4px; padding: 1px 5px; color: var(--color-ink-muted); }
+  .demo-iconbtn {
+    width: 32px; height: 32px; border-radius: 10px;
+    border: 1px solid var(--color-hairline-soft); background: var(--color-surface);
+    display: inline-flex; align-items: center; justify-content: center; color: var(--color-ink-soft);
+  }
+  .demo-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #1FA8A0, #9BB5A0); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+  }
+
+  /* ═══ Component 1: Sidebar accordion */
+  .demo-body { display: grid; grid-template-columns: 240px 1fr; min-height: 460px; }
+  .demo-sidebar { background: var(--color-ink); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .demo-sidebar .brand { display: flex; align-items: center; gap: 8px; padding: 6px 10px 16px; }
+  .demo-sidebar .brand .mark { width: 22px; height: 22px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; }
+  .demo-sidebar .brand .mark i { display: block; border-radius: 2px; background: rgba(255,255,255,0.18); }
+  .demo-sidebar .brand .mark i:nth-child(1) { background: var(--color-accent); }
+  .demo-sidebar .brand .word { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--color-canvas-soft); letter-spacing: -0.02em; }
+
+  .nav-group { border-radius: 10px; }
+  .nav-trigger {
+    width: 100%; background: transparent; border: 0; color: rgba(231,227,216,0.85);
+    display: grid; grid-template-columns: 18px 1fr auto auto; align-items: center; gap: 12px;
+    padding: 10px 12px; cursor: pointer; font-family: inherit; font-size: 13.5px; font-weight: 500;
+    text-align: left; border-radius: 10px;
+  }
+  .nav-trigger:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .nav-trigger .icon { color: rgba(231,227,216,0.6); display: inline-flex; }
+  .nav-trigger .icon svg { width: 16px; height: 16px; }
+  .nav-trigger .count {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 999px;
+    background: rgba(255,255,255,0.08); color: rgba(231,227,216,0.7);
+  }
+  .nav-trigger .chev { color: rgba(231,227,216,0.4); transition: transform .25s cubic-bezier(.4,0,.2,1); display: inline-flex; }
+  .nav-trigger .chev svg { width: 12px; height: 12px; }
+  .nav-group.open .nav-trigger { background: rgba(31,168,160,0.10); color: #fff; }
+  .nav-group.open .nav-trigger .icon { color: var(--color-accent); }
+  .nav-group.open .nav-trigger .count { background: rgba(31,168,160,0.18); color: var(--color-accent); }
+  .nav-group.open .nav-trigger .chev { transform: rotate(90deg); color: var(--color-accent); }
+
+  .nav-panel { max-height: 0; overflow: hidden; transition: max-height .35s cubic-bezier(.4,0,.2,1); }
+  .nav-group.open .nav-panel { max-height: 460px; }
+  .nav-children { display: flex; flex-direction: column; gap: 1px; padding: 4px 0 8px 30px; position: relative; }
+  .nav-children::before {
+    content: ""; position: absolute; left: 26px; top: 6px; bottom: 8px; width: 1px;
+    background: rgba(255,255,255,0.10);
+  }
+  .nav-child {
+    padding: 6px 10px 6px 12px; border-radius: 6px;
+    color: rgba(231,227,216,0.7); font-size: 12.5px; font-weight: 500;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    cursor: pointer; position: relative;
+  }
+  .nav-child::before {
+    content: ""; position: absolute; left: -4px; top: 50%; width: 6px; height: 1px;
+    background: rgba(255,255,255,0.10);
+  }
+  .nav-child:hover { background: rgba(255,255,255,0.04); color: #fff; }
+  .nav-child.is-active { background: rgba(31,168,160,0.16); color: #fff; box-shadow: inset 2px 0 0 var(--color-accent); }
+  .nav-child .badge {
+    font-family: var(--mono); font-size: 9px; padding: 1px 5px; border-radius: 4px;
+    background: rgba(91,108,224,0.22); color: #B7C2FF; font-weight: 600;
+  }
+
+  /* demo workspace */
+  .demo-content { padding: 24px 28px; background: var(--color-canvas); }
+  .demo-headline {
+    font-family: var(--font-display); font-size: 22px; font-weight: 600;
+    letter-spacing: -0.015em; margin: 0 0 4px;
+  }
+  .demo-sub { font-size: 13px; color: var(--color-ink-muted); margin-bottom: 18px; }
+
+  /* ═══ Component 2: Impersonation ribbon */
+  .imp {
+    background: var(--imp-bg); color: var(--imp-fg);
+    padding: 0 18px; min-height: 30px;
+    display: flex; align-items: center; gap: 10px; font-size: 12.5px;
+  }
+  .imp .label { color: rgba(255,241,224,0.75); font-weight: 500; }
+  .imp .target { color: #FFFFFF; font-weight: 600; }
+  .imp .target small { font-weight: 400; color: rgba(255,241,224,0.65); font-size: 11.5px; font-family: var(--mono); margin-left: 6px; }
+  .imp .exit {
+    margin-left: auto; background: transparent; color: #FFFFFF; border: 0; padding: 0;
+    font-weight: 500; font-size: 12.5px; cursor: pointer; font-family: inherit;
+    text-decoration: underline; text-decoration-color: rgba(255,255,255,0.4); text-underline-offset: 3px;
+  }
+  .imp .exit:hover { text-decoration-color: #FFFFFF; }
+
+  /* ═══ Component 3: Sticky edit header */
+  .edit-header {
+    background: var(--color-surface); border: 1px solid var(--edit-line);
+    border-radius: 14px; padding: 14px 18px;
+    display: grid; grid-template-columns: auto 1fr auto auto; gap: 16px; align-items: center;
+    box-shadow: var(--shadow-md);
+    position: relative; isolation: isolate;
+  }
+  .edit-header::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--edit); border-radius: 14px 0 0 14px;
+  }
+  .edit-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #1FA8A0, #9BB5A0); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .edit-name { font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .edit-sub { font-size: 11.5px; color: var(--color-ink-muted); display: flex; align-items: center; gap: 8px; margin-top: 2px; font-family: var(--mono); letter-spacing: .02em; }
+  .edit-sub .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--color-ink-faint); }
+  .edit-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--edit-bg); color: var(--edit); border: 1px solid var(--edit-line);
+    padding: 5px 12px; border-radius: 999px;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+  }
+  .edit-status .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--edit);
+    box-shadow: 0 0 0 0 rgba(91,63,217,0.55); animation: rec 1.8s infinite;
+  }
+  @keyframes rec {
+    0%   { box-shadow: 0 0 0 0 rgba(91,63,217,0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(91,63,217,0); }
+    100% { box-shadow: 0 0 0 0 rgba(91,63,217,0); }
+  }
+  .edit-actions { display: flex; gap: 8px; }
+  .edit-btn {
+    padding: 8px 14px; border-radius: 10px; border: 1px solid var(--color-hairline);
+    background: var(--color-surface); color: var(--color-ink-soft);
+    font-family: inherit; font-weight: 600; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; min-height: 36px;
+  }
+  .edit-btn--save { background: var(--save); color: #fff; border-color: var(--save); }
+  .edit-btn--save:hover { filter: brightness(1.05); }
+  .edit-dirty { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; opacity: 0.85; margin-left: 4px; }
+
+  /* form mock */
+  .form-mock {
+    margin-top: 14px; background: var(--color-surface);
+    border: 1px solid var(--color-hairline); border-radius: 14px;
+    padding: 20px 22px;
+  }
+  .form-mock h4 { font-family: var(--font-display); font-size: 16px; margin: 0 0 2px; letter-spacing: -0.01em; font-weight: 600; }
+  .form-mock .h-sub { font-size: 12px; color: var(--color-ink-muted); margin-bottom: 14px; }
+  .field { display: grid; grid-template-columns: 180px 1fr; gap: 14px; padding: 11px 0; border-top: 1px solid #F1ECDF; align-items: center; }
+  .field:first-of-type { border-top: 0; padding-top: 4px; }
+  .field .l { font-size: 12.5px; color: var(--color-ink-soft); font-weight: 600; }
+  .field .l em { display: block; font-weight: 400; color: var(--color-ink-faint); font-style: normal; font-size: 10.5px; font-family: var(--mono); margin-top: 2px; letter-spacing: .02em; }
+  .field .input {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 10px; padding: 8px 12px; font-size: 13px;
+  }
+  .field .input.dirty { background: #FFF8E6; border-color: #F0CE5C; }
+  .field .input.dirty::after { content: " · changed"; color: #846207; font-size: 11px; font-family: var(--mono); }
+  .field .input.mono { font-family: var(--mono); color: var(--color-ink-soft); }
+
+  /* WHY blocks */
+  .why {
+    background: var(--color-canvas-soft); border: 1px solid var(--color-hairline);
+    border-radius: 14px; padding: 18px 22px; margin-top: 14px;
+    display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: start;
+  }
+  .why .tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--color-accent); font-weight: 700; padding-top: 3px;
+  }
+  .why p { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--color-ink-soft); }
+  .why p b { color: var(--color-ink); }
+
+  /* §3 rationale — dark hero */
+  .rat-hero {
+    background: var(--color-ink); color: var(--color-canvas-soft);
+    border-radius: 14px; padding: 28px;
+    position: relative; overflow: hidden;
+  }
+  .rat-hero .blob {
+    position: absolute; border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
+    width: 200px; height: 250px; right: -60px; bottom: -80px;
+    background: rgba(31,168,160,0.30); pointer-events: none;
+  }
+  .rat-hero .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--color-accent); font-weight: 700; }
+  .rat-hero h2 {
+    font-family: var(--font-display); font-size: 26px; line-height: 1.15;
+    letter-spacing: -0.02em; color: #FFFFFF; margin: 6px 0 12px;
+    max-width: 28ch; font-weight: 600;
+  }
+  .rat-hero .lede { font-size: 13.5px; line-height: 1.65; color: rgba(231,227,216,0.82); max-width: 70ch; margin: 0; position: relative; }
+
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+  .pillar {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 14px; padding: 20px;
+  }
+  .pillar .num { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: var(--color-accent); font-weight: 700; text-transform: uppercase; }
+  .pillar h3 { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -0.015em; margin: 6px 0 8px; }
+  .pillar p { font-size: 13px; line-height: 1.6; color: var(--color-ink-soft); margin: 0 0 12px; }
+  .pillar .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pillar .chips span {
+    font-family: var(--mono); font-size: 10.5px; padding: 3px 8px; border-radius: 999px;
+    background: rgba(31,168,160,0.12); color: #0A6E68; font-weight: 600;
+  }
+
+  /* PM card */
+  .pm {
+    background: var(--color-surface); border: 1px solid var(--color-hairline);
+    border-radius: 14px; padding: 22px 24px; margin-top: 14px;
+  }
+  .pm h3 { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10px; }
+  .pm ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .pm li { display: grid; grid-template-columns: 110px 1fr; gap: 14px; font-size: 13px; line-height: 1.6; color: var(--color-ink-soft); padding: 8px 0; border-top: 1px solid #F1ECDF; }
+  .pm li:first-child { border-top: 0; }
+  .pm li b { color: var(--color-ink); font-family: var(--font-display); font-size: 13.5px; letter-spacing: -0.005em; }
+
+  /* small helpers */
+  .live-tag {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--color-accent); font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(31,168,160,0.12); padding: 4px 10px; border-radius: 999px;
+  }
+  .live-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- ─── Topbar ─── -->
+  <header class="topbar">
+    <div>
+      <div class="doc-id">DOC-HRIS-2026-04 · Internal</div>
+      <h1>HR Dashboard <em>Redesign</em></h1>
+    </div>
+    <div class="meta">
+      <span class="humi-tag">Tier 1 risk</span>
+      <span class="humi-tag humi-tag--accent">Ready for handoff</span>
+    </div>
+  </header>
+
+  <!-- ─── Stat strip · framing the problem ─── -->
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="lbl">Sidebar items</div>
+      <div class="val">29 → <span style="color:var(--color-accent)">4</span></div>
+      <div class="sub">Macro-categories · Miller-safe</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Impersonation signal</div>
+      <div class="val" style="color:var(--imp-bg)">28px</div>
+      <div class="sub">Persistent ribbon · top of viewport</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Edit context loss</div>
+      <div class="val" style="color:var(--edit)">0</div>
+      <div class="sub">Sticky header travels with form</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">P1 incidents addressed</div>
+      <div class="val">7 / 12</div>
+      <div class="sub">Last 12 months · root cause</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ §1 -->
+  <section class="section">
+    <div class="section-hd">
+      <div class="num">0<em>1</em></div>
+      <div class="titles">
+        <span class="eyebrow">Section · architecture</span>
+        <h2>Information architecture</h2>
+      </div>
+    </div>
+
+    <div class="ia">
+      <div class="ch-head">
+        <div>
+          <div class="ch-eyebrow">4 macro-categories</div>
+          <div class="ch-title">Sidebar tree</div>
+        </div>
+        <span class="humi-tag humi-tag--cream">Role-conditional · branches B–D appear only with scope</span>
+      </div>
+
+      <div class="ia-row">
+        <div class="pin">A</div>
+        <div>
+          <div class="name">My Workspace</div>
+          <div class="role">Every user · personal scope</div>
+          <div class="children">
+            <span>Home</span><span>My Profile</span><span>Time &amp; Attendance</span><span>Leaves</span><span>Payslips</span><span>Benefits</span><span>Documents</span><span>Requests</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-row">
+        <div class="pin">B</div>
+        <div>
+          <div class="name">Team Management</div>
+          <div class="role">Managers · direct reports &gt; 0</div>
+          <div class="children">
+            <span>Team Inbox</span><span>Roster &amp; Shifts</span><span>Approvals</span><span>Team Performance</span><span>Probation Reviews</span><span>Team Reports</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-row">
+        <div class="pin">C</div>
+        <div>
+          <div class="name">HR Administration</div>
+          <div class="role">HR Admin · HRIS · SPD</div>
+          <div class="children">
+            <span>Employees</span><span>Hire &amp; Onboard</span><span>Lifecycle</span><span>Compensation</span><span>Welfare Plans</span><span>Recruitment</span><span>Org Reports</span><span>Audit Log</span>
+          </div>
+        </div>
+      </div>
+      <div class="ia-row">
+        <div class="pin">D</div>
+        <div>
+          <div class="name">System Settings</div>
+          <div class="role">System admins · tenant configuration</div>
+          <div class="children">
+            <span>Roles &amp; Permissions</span><span>Approval Workflows</span><span>Notifications</span><span>Integrations</span><span>Branding</span><span>Security &amp; SSO</span><span>Impersonation Log</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ §2 -->
+  <section class="section">
+    <div class="section-hd">
+      <div class="num">0<em>2</em></div>
+      <div class="titles">
+        <span class="eyebrow">Section · components</span>
+        <h2>Three components, live</h2>
+      </div>
+    </div>
+
+    <!-- 2.1 sidebar accordion -->
+    <div class="ch-head">
+      <div>
+        <div class="ch-eyebrow">2.1 · C-NAV</div>
+        <div class="ch-title">Nested accordion sidebar</div>
+      </div>
+      <span class="live-tag">live · click a group</span>
+    </div>
+
+    <div class="demo-stage">
+      <div class="demo-topbar">
+        <div class="demo-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          ค้นหา…
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="demo-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div>
+        <div class="demo-avatar">JD</div>
+      </div>
+
+      <div class="demo-body">
+        <aside class="demo-sidebar">
+          <div class="brand">
+            <div class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="word">People/OS</div>
+          </div>
+
+          <div class="nav-group open" data-acc>
+            <button class="nav-trigger" type="button" aria-expanded="true">
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+              <span>My Workspace</span>
+              <span class="count">8</span>
+              <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="nav-panel">
+              <div class="nav-children">
+                <div class="nav-child is-active">Home</div>
+                <div class="nav-child">My Profile</div>
+                <div class="nav-child">Time &amp; Attendance</div>
+                <div class="nav-child">Leaves <span class="badge">3</span></div>
+                <div class="nav-child">Payslips</div>
+                <div class="nav-child">Benefits</div>
+                <div class="nav-child">Documents</div>
+                <div class="nav-child">Requests</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nav-group" data-acc>
+            <button class="nav-trigger" type="button" aria-expanded="false">
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+              <span>Team Management</span>
+              <span class="count">6</span>
+              <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="nav-panel">
+              <div class="nav-children">
+                <div class="nav-child">Team Inbox <span class="badge">12</span></div>
+                <div class="nav-child">Roster &amp; Shifts</div>
+                <div class="nav-child">Approvals</div>
+                <div class="nav-child">Team Performance</div>
+                <div class="nav-child">Probation Reviews</div>
+                <div class="nav-child">Team Reports</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nav-group" data-acc>
+            <button class="nav-trigger" type="button" aria-expanded="false">
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+              <span>HR Administration</span>
+              <span class="count">8</span>
+              <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="nav-panel">
+              <div class="nav-children">
+                <div class="nav-child">Employees</div>
+                <div class="nav-child">Hire &amp; Onboard</div>
+                <div class="nav-child">Lifecycle</div>
+                <div class="nav-child">Compensation</div>
+                <div class="nav-child">Welfare Plans</div>
+                <div class="nav-child">Recruitment</div>
+                <div class="nav-child">Org Reports</div>
+                <div class="nav-child">Audit Log</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nav-group" data-acc>
+            <button class="nav-trigger" type="button" aria-expanded="false">
+              <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+              <span>System Settings</span>
+              <span class="count">7</span>
+              <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            </button>
+            <div class="nav-panel">
+              <div class="nav-children">
+                <div class="nav-child">Roles &amp; Permissions</div>
+                <div class="nav-child">Approval Workflows</div>
+                <div class="nav-child">Notifications</div>
+                <div class="nav-child">Integrations</div>
+                <div class="nav-child">Branding</div>
+                <div class="nav-child">Security &amp; SSO</div>
+                <div class="nav-child">Impersonation Log</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="demo-content">
+          <div class="demo-headline">หน้าหลัก</div>
+          <div class="demo-sub">29 leaf items, 4 chunks. Open one branch, the rest collapse.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="why">
+      <div class="tag">Why</div>
+      <p><b>Single-open is the constraint that earns the dividend.</b> A flat list still asks the eye to filter 29 items. The accordion forces one branch into focus at a time — 4 chunks replace 29, well inside Miller's 7±2.</p>
+    </div>
+
+    <!-- 2.2 impersonation ribbon -->
+    <div class="ch-head" style="margin-top: 36px;">
+      <div>
+        <div class="ch-eyebrow">2.2 · C-IMP</div>
+        <div class="ch-title">Admin impersonation ribbon</div>
+      </div>
+      <span class="live-tag">live · Esc to exit</span>
+    </div>
+
+    <div class="demo-stage">
+      <div class="imp" id="impBanner">
+        <span class="label">Acting as</span>
+        <span class="target">Somchai Anan <small>EMP-04821</small></span>
+        <button class="exit" id="impExit" type="button">Switch back to admin</button>
+      </div>
+      <div class="demo-topbar">
+        <div class="demo-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          ค้นหา…
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="demo-iconbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></div>
+        <div class="demo-avatar" style="background:linear-gradient(135deg,#E08864,#E8C46B); color:#0E1B2C;">SA</div>
+      </div>
+      <div style="padding: 22px 28px; background: var(--color-canvas); min-height: 140px;">
+        <div class="demo-headline">โปรไฟล์ของฉัน</div>
+        <div class="demo-sub">Employee view rendered exactly as the impersonated user sees it. Only the ribbon announces the session state.</div>
+        <button id="impToggle" class="humi-button humi-button--ghost" style="margin-top: 8px;">Re-show ribbon</button>
+      </div>
+    </div>
+
+    <div class="why">
+      <div class="tag">Why</div>
+      <p><b>A ribbon, not a modal.</b> 28px at the absolute top — where the admin's eye returns between actions. Visible without shouting. Amber, not red — red is reserved for destructive confirmations. Exit lives on the same row, so recovery is one click.</p>
+    </div>
+
+    <!-- 2.3 sticky edit header -->
+    <div class="ch-head" style="margin-top: 36px;">
+      <div>
+        <div class="ch-eyebrow">2.3 · C-EDIT</div>
+        <div class="ch-title">Sticky contextual edit header</div>
+      </div>
+      <span class="live-tag">live · click save</span>
+    </div>
+
+    <div class="demo-stage" style="padding: 22px;">
+      <div class="edit-header">
+        <div class="edit-avatar">SA</div>
+        <div>
+          <div class="edit-name">Somchai Anan</div>
+          <div class="edit-sub">
+            <span>EMP-04821</span><span class="sep"></span>
+            <span>Store Manager · Operations</span><span class="sep"></span>
+            <span>Bangkok 03</span>
+          </div>
+        </div>
+        <div class="edit-status">
+          <span class="dot"></span>
+          Editing record
+        </div>
+        <div class="edit-actions">
+          <button class="edit-btn" type="button">Cancel</button>
+          <button class="edit-btn edit-btn--save" type="button" id="editSave">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save
+            <span class="edit-dirty">3 unsaved</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-mock">
+        <span class="humi-tag humi-tag--cream" style="margin-bottom: 12px;">Section · Compensation &amp; banking</span>
+        <h4 style="margin-top: 12px;">Compensation</h4>
+        <div class="h-sub">Tier-1 sensitive · changes written to audit log on save.</div>
+
+        <div class="field"><div class="l">Base salary <em>monthly · THB</em></div><div class="input mono dirty">฿ 68,500.00</div></div>
+        <div class="field"><div class="l">Position allowance <em>monthly</em></div><div class="input mono">฿ 5,000.00</div></div>
+        <div class="field"><div class="l">Bank account <em>SCB · ending 4421</em></div><div class="input mono dirty">xxxx-xxxx-4421</div></div>
+        <div class="field"><div class="l">Tax bracket <em>BE 2568</em></div><div class="input">25% — ฿ 750k–฿ 1m</div></div>
+        <div class="field"><div class="l">Effective date</div><div class="input dirty">01 June 2026</div></div>
+      </div>
+    </div>
+
+    <div class="why">
+      <div class="tag">Why</div>
+      <p><b>"Am I editing the right person?"</b> The target's photo and name stay in view. The action bar travels with the form. Indigo signals <em>mode</em> — distinct from the brand teal that means <em>navigate</em>.</p>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════ §3 -->
+  <section class="section">
+    <div class="section-hd">
+      <div class="num">0<em>3</em></div>
+      <div class="titles">
+        <span class="eyebrow">Section · rationale</span>
+        <h2>Why this matters to the business</h2>
+      </div>
+    </div>
+
+    <div class="rat-hero">
+      <div class="blob"></div>
+      <div class="eyebrow">Executive narrative</div>
+      <h2>From "every screen feels heavy" to "every screen feels accountable."</h2>
+      <p class="lede">The console fails at the three moments of highest cognitive load — finding a path, switching identity, mutating a record. Each failure is cheap alone. Together they cost renewals.</p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="num">Pillar 01 · Load</div>
+        <h3>4 chunks instead of 29</h3>
+        <p>Accordion forces one branch into focus. Inside Miller's 7±2. Click depth holds at 2.</p>
+        <div class="chips">
+          <span>−74% nav surface</span><span>Zero scroll</span>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="num">Pillar 02 · Error</div>
+        <h3>Mistake-proof identity</h3>
+        <p>Persistent ribbon makes the wrong action visibly wrong. Exit is one click, also Esc.</p>
+        <div class="chips">
+          <span>Audit-logged</span><span>Esc-to-exit</span>
+        </div>
+      </div>
+      <div class="pillar">
+        <div class="num">Pillar 03 · Trust</div>
+        <h3>Mode ≠ navigation</h3>
+        <p>Indigo edit chrome separates mutating from moving. Identity and Save travel with the form.</p>
+        <div class="chips">
+          <span>SOC2</span><span>PDPA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pm">
+      <h3>For the room with the CFO and the CTO</h3>
+      <ul>
+        <li><b>Cost of inaction.</b> 7 of the last 12 P1 incidents traced to unnoticed impersonation or mis-targeted edits. Both are now structurally hard to ignore.</li>
+        <li><b>Retention play.</b> New managers spent 41s finding "Approvals" in the old IA. New IA: two clicks from any state.</li>
+        <li><b>Regulatory posture.</b> Who acted as whom + what changed when — produced as a side-effect of the UI, not bolt-on logging.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Single-open accordion
+  document.querySelectorAll('[data-acc] .nav-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('[data-acc]');
+      const isOpen = group.classList.contains('open');
+      group.parentElement.querySelectorAll('[data-acc]').forEach(g => {
+        g.classList.remove('open');
+        g.querySelector('.nav-trigger').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        group.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Impersonation ribbon — exit + Esc + re-show
+  const banner = document.getElementById('impBanner');
+  const exitBtn = document.getElementById('impExit');
+  const toggle = document.getElementById('impToggle');
+  function dismiss() {
+    banner.style.transition = 'opacity .2s ease, max-height .2s ease, min-height .2s ease, padding .2s ease';
+    banner.style.opacity = '0';
+    banner.style.maxHeight = '0';
+    banner.style.minHeight = '0';
+    banner.style.padding = '0 18px';
+    banner.style.overflow = 'hidden';
+  }
+  function reshow() {
+    banner.style.opacity = '';
+    banner.style.maxHeight = '';
+    banner.style.minHeight = '';
+    banner.style.padding = '';
+    banner.style.overflow = '';
+  }
+  exitBtn.addEventListener('click', dismiss);
+  toggle.addEventListener('click', reshow);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && banner.style.opacity !== '0') dismiss(); });
+
+  // Edit save feedback
+  const saveBtn = document.getElementById('editSave');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const dirty = saveBtn.querySelector('.edit-dirty');
+      if (dirty) dirty.textContent = 'saved';
+      saveBtn.style.background = '#0E1B2C';
+      saveBtn.style.borderColor = '#0E1B2C';
+      setTimeout(() => {
+        saveBtn.style.background = '';
+        saveBtn.style.borderColor = '';
+        if (dirty) dirty.textContent = '0 unsaved';
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
